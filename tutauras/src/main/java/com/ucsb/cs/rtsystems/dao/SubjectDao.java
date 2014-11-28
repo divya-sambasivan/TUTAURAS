@@ -13,8 +13,8 @@ import com.ucsb.cs.rtsystems.model.Subject;
 
 public class SubjectDao {
 	
-	private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();;
-	private static String SUBJECT_KIND = "SUBJECT";
+	private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+	public static String SUBJECT_KIND = "SUBJECT";
 	
 	public SubjectDao(){
 	}
@@ -35,7 +35,6 @@ public class SubjectDao {
 	}
 	
 	public Subject getSubject(String subjectCode){
-		Query q = new Query(SUBJECT_KIND);
 		Subject subject = null;
 		try {
 			Entity subjectEntity = datastore.get(KeyFactory.createKey(SUBJECT_KIND, subjectCode));
@@ -50,7 +49,6 @@ public class SubjectDao {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 		return null;
 	}
 	
