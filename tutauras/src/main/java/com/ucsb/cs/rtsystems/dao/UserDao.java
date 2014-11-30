@@ -15,30 +15,23 @@ public class UserDao {
 	public UserDao(){
 	}
 	
-	public User getUser(String ID){
+	public User getUser(long ID) throws EntityNotFoundException{
 		User user = null;
-		try {
-			Entity userEntity = datastore.get(KeyFactory.createKey(USER_KIND, ID));
-			if(userEntity!=null){
-				user = new User();
-				user.setID((String)userEntity.getKey().getName());
-				user.setFirstName((String)userEntity.getProperty("firstName"));
-				user.setLastName((String)userEntity.getProperty("lastName"));
-				user.setEmail((String)userEntity.getProperty("email"));
-				user.setPictureUrl((String)userEntity.getProperty("pictureUrl"));
-				user.setPhoneNumber((String)userEntity.getProperty("phoneNumber"));
-			}
-			return user;
-		} catch (EntityNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		Entity userEntity = datastore.get(KeyFactory.createKey(USER_KIND, ID));
+		if(userEntity!=null){
+			user = new User();
+			user.setID((long)userEntity.getKey().getId());
+			user.setFirstName((String)userEntity.getProperty("firstName"));
+			user.setLastName((String)userEntity.getProperty("lastName"));
+			user.setEmail((String)userEntity.getProperty("email"));
+			user.setPictureUrl((String)userEntity.getProperty("pictureUrl"));
+			user.setPhoneNumber((String)userEntity.getProperty("phoneNumber"));
 		}
-		return null;
+		return user;
 	}
 	
 	public void addUser(User user){
-		/*TODO: check if user with code already exists */
-		Entity userEntity = new Entity(USER_KIND, user.getID());
+		Entity userEntity = new Entity(USER_KIND);
 		userEntity.setProperty("firstName", user.getFirstName());
 		userEntity.setProperty("lastName", user.getLastName());
 		userEntity.setProperty("email", user.getEmail());
@@ -47,9 +40,8 @@ public class UserDao {
 		datastore.put(userEntity);
 	}
 	
-	public void updateUser(User user){
-		/*TODO: check if user with code exists */
-		Entity userEntity = new Entity(USER_KIND, user.getID());
+	public void updateUser(User user) throws EntityNotFoundException{
+		Entity userEntity = datastore.get(KeyFactory.createKey(USER_KIND, user.getID()));
 		userEntity.setProperty("firstName", user.getFirstName());
 		userEntity.setProperty("lastName", user.getLastName());
 		userEntity.setProperty("email", user.getEmail());
@@ -58,8 +50,7 @@ public class UserDao {
 		datastore.put(userEntity);
 	}
 	
-	public void deleteUser(String ID){
-		/*TODO: check if subject with code exists */
+	public void deleteUser(long ID){
 		datastore.delete(KeyFactory.createKey(USER_KIND, ID));
 	}
 

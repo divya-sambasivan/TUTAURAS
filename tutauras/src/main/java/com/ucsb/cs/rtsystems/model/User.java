@@ -3,7 +3,7 @@ package com.ucsb.cs.rtsystems.model;
 import javax.xml.bind.annotation.XmlElement;
 
 public class User {
-	String ID;
+	long ID;
 	String firstName;
 	String lastName;
 	String email;
@@ -11,11 +11,11 @@ public class User {
 	String phoneNumber;
 	
 	
-	public String getID() {
+	public long getID() {
 		return ID;
 	}
 	@XmlElement
-	public void setID(String iD) {
+	public void setID(long iD) {
 		ID = iD;
 	}
 	public String getFirstName() {
