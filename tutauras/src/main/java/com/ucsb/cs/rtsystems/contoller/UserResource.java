@@ -27,7 +27,6 @@ private UserDao userDao;
 		userDao = new UserDao();
 	}
 	
-	
 	@GET
 	@Path("{user_code}")
 	@Produces(MediaType.APPLICATION_JSON)

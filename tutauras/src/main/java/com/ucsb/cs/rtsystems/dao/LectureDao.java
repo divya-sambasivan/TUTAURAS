@@ -16,7 +16,7 @@ import com.ucsb.cs.rtsystems.model.Lecture;
 public class LectureDao {
 	
 	private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();;
-	private static String LECTURE_KIND = "LECTURE";
+	public static String LECTURE_KIND = "LECTURE";
 	SubjectDao subjectDao;
 	
 	public LectureDao(){

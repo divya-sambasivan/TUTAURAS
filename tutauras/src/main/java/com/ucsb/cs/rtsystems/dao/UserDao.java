@@ -15,6 +15,15 @@ public class UserDao {
 	public UserDao(){
 	}
 	
+	public boolean isUser(long ID){
+		try {
+			this.getUser(ID);
+			return true;
+		} catch (EntityNotFoundException e) {
+			return false;
+		}
+	}
+	
 	public User getUser(long ID) throws EntityNotFoundException{
 		User user = null;
 		Entity userEntity = datastore.get(KeyFactory.createKey(USER_KIND, ID));
