@@ -1,0 +1,43 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+	    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+	    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+	    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+	</head>
+	
+	<body>
+		<div class="container">
+			<div class="header">
+	        	<h3 class="text-muted">Tutaurus</h3>
+	      	</div>
+	      	<div class="jumbotron">
+	        	<h1>Let's get started</h1>
+	        	<p><button class="btn btn-lg btn-success" onclick="hello( 'google' ).login()">Sign into google</button></p>
+		     </div>
+		</div>
+		
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+	    <!-- for google oauth -->
+	    <script src='js/hello.min.js'></script>
+	    <script>
+	    	hello.init({ 
+				google   : '609282586889-e1j3bf9p3s3a45uotqel24q43vdero9s.apps.googleusercontent.com'
+			},
+			{	scope: 'email',
+				redirect_uri: 'index.html'},
+			{oauth_proxy : 'https://auth-server.herokuapp.com/proxy'});
+		    hello.on('auth.login', function(auth){
+				
+				// call user information, for the given network
+				hello( auth.network ).api( '/me' ).then( function(r){
+					window.location = "index.html?user="+r.id
+				});
+			});
+	   </script>
+	
+	</body>
+
+</html>

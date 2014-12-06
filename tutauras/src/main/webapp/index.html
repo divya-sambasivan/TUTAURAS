@@ -1,0 +1,112 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+	    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+	    <meta name="viewport" content="width=device-width, initial-scale=1">
+	    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+	    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+	    <link rel="stylesheet" href="stylesheets/signin.css">
+		<script src='js/hello.min.js'></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+	</head>
+	
+	<body>
+		<div id= "profile"></div>
+		
+		<nav class="navbar navbar-inverse">
+	        <div class="container-fluid">
+	          <div class="navbar-header">
+	            <a class="navbar-brand" id="userProfilePicture"></a>
+	          </div>
+	          <div id="navbar" class="navbar-collapse collapse">
+	            <ul class="nav navbar-nav">
+	              <li class="active"><a href="#" id="userProfileName"></a></li>
+			  	</ul>
+			  </div>
+	          <!--/.nav-collapse -->
+	        </div><!--/.container-fluid -->
+      	</nav>
+		
+		<div class="choice">
+			<div class="choice-heading">
+				What will you be today?
+			</div>
+			
+			<a class="btn btn-lg btn-primary btn-block" href="student.html">Student</a>
+			<button class="btn btn-lg btn-primary btn-block">Tutor</button>
+		</div>
+		<!-- Modal -->
+
+		<div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		  <div class="modal-dialog">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+		        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+		      </div>
+		      <div class="modal-body">
+		        You are just one step away from meeting or becoming an awesome tutor. Go ahead and register yourself.
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-primary" id="btnRegister">Register</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+		<script>
+				
+				// call user information, for the given network
+				hello.init({
+					google   : '609282586889-e1j3bf9p3s3a45uotqel24q43vdero9s.apps.googleusercontent.com'
+				},
+				{redirect_uri: 'register.html'},
+				{oauth_proxy : 'https://auth-server.herokuapp.com/proxy'});
+			    hello.on('auth.login', function(auth){
+					hello( auth.network ).api( '/me' ).then( function(r){
+						//global variable with ser details
+						userInfo = r;
+						$('#userProfilePicture').append('<img src="'+ r.thumbnail +'" style="margin-top: -12px;"/>');
+						$('#userProfileName').append('Hello, '+r.name)
+						
+						//check if this user is a registered user
+						url = "rest/user/search?email="+r.email;
+						$.getJSON(url)
+					    .done(function(data) { /* user exists */ })
+					    .fail(function() {
+					    	$('#registerModal').find('.modal-title').text('Hi ' + r.first_name);
+					    	$('#registerModal').modal('show');
+					    });
+					});
+			    });
+			    
+			    $('#btnRegister').on('click', function (e) {
+				    //register
+				    user = {}
+				    user.ID = userInfo.id;
+				    user.firstName = userInfo.first_name;
+				    user.lastName = userInfo.last_name;
+				    user.email = userInfo.email;
+				    user.pictureUrl = userInfo.picture;
+				    
+				    var userUrl = "rest/user";
+				    
+				    $.ajax({
+				        url : userUrl,
+				        type: "POST",
+				        contentType: "application/json",
+				        data : JSON.stringify(user),
+				        success: function(data, textStatus, jqXHR)
+				        {
+				        	$('#registerModal').modal('hide');
+				        },
+				        error: function (jqXHR, textStatus, errorThrown)
+				        {
+				     		alert("error");
+				        }
+				    });
+			    });
+			    
+		</script>
+	</body>
+</html>

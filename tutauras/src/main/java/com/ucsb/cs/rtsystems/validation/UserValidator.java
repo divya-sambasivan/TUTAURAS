@@ -39,16 +39,20 @@ public class UserValidator {
 		}
 		
 		//validate email
-		
-		emailMatcher = emailPattern.matcher(email);
-		if(!(email == null || email.equals("")) && !emailMatcher.matches()){
-			errors.add("Invalid email address");
+		else{
+			emailMatcher = emailPattern.matcher(email);
+			if(!(email == null || email.equals("")) && !emailMatcher.matches()){
+				errors.add("Invalid email address");
+			}
 		}
 		
 		//validate phone
-		phoneMatcher = phonePattern.matcher(user.getPhoneNumber());
-		if(!phoneMatcher.matches()){
-			errors.add("Invalid phone number");
+		String phoneNumber = user.getPhoneNumber();
+		if(phoneNumber != null){
+			phoneMatcher = phonePattern.matcher(user.getPhoneNumber());
+			if(!phoneMatcher.matches()){
+				errors.add("Invalid phone number");
+			}
 		}
 		
 		return this.errors;

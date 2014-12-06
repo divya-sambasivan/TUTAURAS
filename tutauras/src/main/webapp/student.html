@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Example of Twitter Bootstrap 3 Dynamic Tabs</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+<style type="text/css">
+	.student-tab{
+		margin: 20px;
+	}
+</style>
+</head>
+<body>
+<div class="student">
+	<nav class="navbar navbar-inverse">
+	    <ul class="nav nav-tabs">
+	        <li class="active"><a data-toggle="tab" href="#myLectures">My Lectures</a></li>
+	        <li><a data-toggle="tab" href="#newLecture">New Lecture</a></li>
+	    </ul>
+    </nav>
+    <div class="tab-content">
+        <div id="myLectures" class="tab-pane fade in active">
+            <h3>My Lectures</h3>
+            <p>A list of my current lectures</p>
+        </div>
+        <div id="newLecture" class="tab-pane fade">
+            <h3>Section B</h3>
+            <p>Vestibulum nec erat eu nulla rhoncus fringilla ut non neque. Vivamus nibh urna, ornare id gravida ut, mollis a magna. Aliquam porttitor condimentum nisi, eu viverra ipsum porta ut. Nam hendrerit bibendum turpis, sed molestie mi fermentum id. Aenean volutpat velit sem. Sed consequat ante in rutrum convallis. Nunc facilisis leo at faucibus adipiscing.</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>                                		

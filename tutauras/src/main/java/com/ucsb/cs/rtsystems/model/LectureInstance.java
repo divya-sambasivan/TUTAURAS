@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class LectureInstance {
 	long ID;
 	long lectureId;
-	long studentId;
+	String studentId;
 	Date lectureDate;
 	
 	public Date getLectureDate() {
@@ -34,11 +34,11 @@ public class LectureInstance {
 	public void setLectureId(long lectureId) {
 		this.lectureId = lectureId;
 	}
-	public long getStudentId() {
+	public String getStudentId() {
 		return studentId;
 	}
 	
-	public void setStudentId(long studentId) {
+	public void setStudentId(String studentId) {
 		this.studentId = studentId;
 	}
 	

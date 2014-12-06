@@ -26,7 +26,7 @@ public class LectureInstanceDao {
 			lectureInstance = new LectureInstance();
 			lectureInstance.setID((long)lectureInstanceEntity.getKey().getId());
 			lectureInstance.setLectureId(lectureInstanceEntity.getParent().getId());
-			lectureInstance.setStudentId((long)lectureInstanceEntity.getProperty("studentId"));
+			lectureInstance.setStudentId((String)lectureInstanceEntity.getProperty("studentId"));
 			lectureInstance.setLectureDate((Date)lectureInstanceEntity.getProperty("lectureDate"));
 		}
 		return lectureInstance;

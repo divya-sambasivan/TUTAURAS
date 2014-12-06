@@ -10,6 +10,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
@@ -28,10 +29,23 @@ private UserDao userDao;
 	}
 	
 	@GET
+	@Path("/search")
+	@Produces(MediaType.APPLICATION_JSON)
+	public User getUserByEmail(
+			@QueryParam("email") String email) throws WebApplicationException{
+		try{
+			User user = userDao.getUserByEmail(email);
+			return user;
+		}catch(EntityNotFoundException e){
+			throw new WebApplicationException(404);
+		}
+	}
+	
+	@GET
 	@Path("{user_code}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public User getUser(
-			@PathParam("user_code") long userCode) throws WebApplicationException{
+			@PathParam("user_code") String userCode) throws WebApplicationException{
 		try{
 			User user = userDao.getUser(userCode);
 			return user;
@@ -67,4 +81,5 @@ private UserDao userDao;
 	public void deleteUser(@PathParam("user_code") long userCode){
 		userDao.deleteUser(userCode);
 	}
+	
 }
