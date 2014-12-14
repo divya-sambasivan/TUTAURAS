@@ -18,9 +18,8 @@ import com.ucsb.cs.rtsystems.dao.LectureInstanceDao;
 import com.ucsb.cs.rtsystems.exception.BadRequestException;
 import com.ucsb.cs.rtsystems.model.LectureInstance;
 import com.ucsb.cs.rtsystems.validation.LectureInstanceValidator;
-import com.ucsb.cs.rtsystems.validation.LectureValidator;
 
-@Path("/lectureInstance/{lecture_id}")
+@Path("/lectureInstance/{subject_code}/{lecture_id}")
 public class LectureInstanceResource {
 	private LectureInstanceDao lectureInstanceDao;
 	
@@ -32,15 +31,30 @@ public class LectureInstanceResource {
 	@Path("{lecture_instance_id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public LectureInstance getLectureInstance(
+			@PathParam("subject_code") String subjectCode,
 			@PathParam("lecture_id") long lectureId,
 			@PathParam("lecture_instance_id") long lectureInstanceId) throws WebApplicationException{
 		LectureInstance lectureInstance = null;
 		try{
-			lectureInstance = lectureInstanceDao.getLectureInstance(lectureId, lectureInstanceId);
+			lectureInstance = lectureInstanceDao.getLectureInstance(subjectCode, lectureId, lectureInstanceId);
 		}catch(EntityNotFoundException e){
 			throw new WebApplicationException(404);
 		}
 		return lectureInstance;
+	}
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public ArrayList<LectureInstance> getLectureInstances(
+			@PathParam("subject_code") String subjectCode,
+			@PathParam("lecture_id") long lectureId) throws WebApplicationException{
+		ArrayList<LectureInstance> lectureInstances = null;
+		try{
+			lectureInstances = lectureInstanceDao.getLectureInstances(subjectCode, lectureId);
+		}catch(EntityNotFoundException e){
+			throw new WebApplicationException(404);
+		}
+		return lectureInstances;
 	}
 	
 	@POST
@@ -75,11 +89,13 @@ public class LectureInstanceResource {
 	}
 	
 	@DELETE
-	@Path("{lecture_id}")
+	@Path("{lecture_instance_id}")
 	public void deleteLectureInstance(
+			@PathParam("subject_code") String subjectCode,
 			@PathParam("lecture_id") long lectureId,
 			@PathParam("lecture_instance_id") long lectureInstanceId){
-		lectureInstanceDao.deleteLectureInstance(lectureInstanceId, lectureId);
+		System.out.println(subjectCode+lectureId+lectureInstanceId);
+		lectureInstanceDao.deleteLectureInstance(subjectCode, lectureId, lectureInstanceId);
 	}
 
 }

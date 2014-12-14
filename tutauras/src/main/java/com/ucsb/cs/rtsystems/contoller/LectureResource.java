@@ -1,6 +1,7 @@
 package com.ucsb.cs.rtsystems.contoller;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -17,6 +18,7 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.ucsb.cs.rtsystems.dao.LectureDao;
 import com.ucsb.cs.rtsystems.exception.BadRequestException;
 import com.ucsb.cs.rtsystems.model.Lecture;
+import com.ucsb.cs.rtsystems.model.Subject;
 import com.ucsb.cs.rtsystems.validation.LectureValidator;
 
 @Path("/lecture/{subject_code}")
@@ -26,6 +28,19 @@ public class LectureResource {
 	
 	public LectureResource(){
 		lectureDao = new LectureDao();
+	}
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Lecture> getLectures(
+			@PathParam("subject_code") String subjectCode){
+		ArrayList<Lecture> lectures = new ArrayList<Lecture>();
+		try {
+			lectures = lectureDao.getAllLectures(subjectCode);
+			return lectures;
+		} catch(EntityNotFoundException e){
+			throw new WebApplicationException(404);
+		}
 	}
 	
 	@GET

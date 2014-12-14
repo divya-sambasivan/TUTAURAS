@@ -1,12 +1,21 @@
 package com.ucsb.cs.rtsystems.dao;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.KeyFactory.Builder;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.search.SortExpression;
 import com.ucsb.cs.rtsystems.model.LectureInstance;
 
 public class LectureInstanceDao {
@@ -18,14 +27,53 @@ public class LectureInstanceDao {
 		lectureDao = new LectureDao();
 	}
 	
-	public LectureInstance getLectureInstance(long lectureCode, long lectureInstanceId) throws EntityNotFoundException{
+	public ArrayList<LectureInstance> getLectureInstancesByStudent(String studentId){
+		ArrayList<LectureInstance> lectureInstances = new ArrayList<LectureInstance>();
 		LectureInstance lectureInstance = null;
-		
-		Entity lectureInstanceEntity = datastore.get(KeyFactory.createKey(KeyFactory.createKey(lectureDao.LECTURE_KIND, lectureCode),LECTURE_INSTANCE_KIND, lectureInstanceId));
+		Filter studentFilter =
+				  new FilterPredicate("studentId",
+				                      FilterOperator.EQUAL,
+				                      studentId);
+		Query q = new Query(LECTURE_INSTANCE_KIND).setFilter(studentFilter).addSort("lectureDate", Query.SortDirection.ASCENDING);
+		PreparedQuery pq = datastore.prepare(q);
+		for (Entity lectureInstanceEntity : pq.asIterable()) {
+			lectureInstance = new LectureInstance();
+			lectureInstance.setID((long)lectureInstanceEntity.getKey().getId());
+			lectureInstance.setLectureId(lectureInstanceEntity.getParent().getId());
+			lectureInstance.setSubjectCode(lectureInstanceEntity.getParent().getParent().getName());
+			lectureInstance.setStudentId((String)lectureInstanceEntity.getProperty("studentId"));
+			lectureInstance.setLectureDate((Date)lectureInstanceEntity.getProperty("lectureDate"));
+			lectureInstances.add(lectureInstance);
+		}
+		return lectureInstances;
+	}
+	
+	public ArrayList<LectureInstance> getLectureInstances(String subjectCode, long lectureId) throws EntityNotFoundException{
+		ArrayList<LectureInstance> lectureInstances = new ArrayList<LectureInstance>();
+		LectureInstance lectureInstance = new LectureInstance();
+		Query q = new Query(LECTURE_INSTANCE_KIND).setAncestor(new Builder(SubjectDao.SUBJECT_KIND, subjectCode).addChild(LectureDao.LECTURE_KIND, lectureId).getKey());
+		PreparedQuery pq = datastore.prepare(q);
+		for (Entity lectureInstanceEntity : pq.asIterable()) {
+			lectureInstance = new LectureInstance();
+			lectureInstance.setID((long)lectureInstanceEntity.getKey().getId());
+			lectureInstance.setLectureId(lectureInstanceEntity.getParent().getId());
+			lectureInstance.setSubjectCode(lectureInstanceEntity.getParent().getParent().getName());
+			lectureInstance.setStudentId((String)lectureInstanceEntity.getProperty("studentId"));
+			lectureInstance.setLectureDate((Date)lectureInstanceEntity.getProperty("lectureDate"));
+			lectureInstances.add(lectureInstance);
+		}
+		return lectureInstances;
+	}
+	
+	public LectureInstance getLectureInstance(String subjectCode, long lectureId, long lectureInstanceId) throws EntityNotFoundException{
+		LectureInstance lectureInstance = null;
+		Key key = new Builder(SubjectDao.SUBJECT_KIND, subjectCode).addChild(LectureDao.LECTURE_KIND, lectureId).addChild(LECTURE_INSTANCE_KIND, lectureInstanceId).getKey();
+		Entity lectureInstanceEntity = datastore.get(key);
 		if(lectureInstanceEntity!=null){
 			lectureInstance = new LectureInstance();
 			lectureInstance.setID((long)lectureInstanceEntity.getKey().getId());
 			lectureInstance.setLectureId(lectureInstanceEntity.getParent().getId());
+			lectureInstance.setSubjectCode(lectureInstanceEntity.getParent().getParent().getName());
 			lectureInstance.setStudentId((String)lectureInstanceEntity.getProperty("studentId"));
 			lectureInstance.setLectureDate((Date)lectureInstanceEntity.getProperty("lectureDate"));
 		}
@@ -33,21 +81,24 @@ public class LectureInstanceDao {
 	}
 	
 	public void addLectureInstance(LectureInstance lectureInstance){
-		Entity lectureEntity = new Entity(LECTURE_INSTANCE_KIND, KeyFactory.createKey(lectureDao.LECTURE_KIND, lectureInstance.getLectureId()));
+		Key key = new Builder(SubjectDao.SUBJECT_KIND, lectureInstance.getSubjectCode()).addChild(LectureDao.LECTURE_KIND, lectureInstance.getLectureId()).getKey();
+		System.out.println(new Builder(SubjectDao.SUBJECT_KIND, lectureInstance.getSubjectCode()).addChild(LectureDao.LECTURE_KIND, lectureInstance.getLectureId()));
+		Entity lectureEntity = new Entity(LECTURE_INSTANCE_KIND, key);
 		lectureEntity.setProperty("studentId", lectureInstance.getStudentId());
 		lectureEntity.setProperty("lectureDate", lectureInstance.getLectureDate());
 		datastore.put(lectureEntity);
 	}
 	
 	public void updateLectureInstance(LectureInstance lectureInstance) throws EntityNotFoundException{
-		long lectureInstanceId = lectureInstance.getID();
-		Entity lectureEntity = datastore.get(KeyFactory.createKey(KeyFactory.createKey(lectureDao.LECTURE_KIND, lectureInstance.getLectureId()),LECTURE_INSTANCE_KIND, lectureInstanceId));
+		Key key = new Builder(SubjectDao.SUBJECT_KIND, "cs201").addChild(LectureDao.LECTURE_KIND, 6192449487634432L).addChild(LECTURE_INSTANCE_KIND, lectureInstance.getID()).getKey();
+		Entity lectureEntity = datastore.get(key);
 		lectureEntity.setProperty("studentId", lectureInstance.getStudentId());
 		lectureEntity.setProperty("lectureDate", lectureInstance.getLectureDate());
 		datastore.put(lectureEntity);
 	}
 	
-	public void deleteLectureInstance(long lectureInstanceId, long lectureId){
-		datastore.delete(KeyFactory.createKey(KeyFactory.createKey(lectureDao.LECTURE_KIND, lectureId),LECTURE_INSTANCE_KIND, lectureInstanceId));
+	public void deleteLectureInstance(String subjectCode,  long lectureId, long lectureInstanceId){
+		Key key = new Builder(SubjectDao.SUBJECT_KIND, subjectCode).addChild(LectureDao.LECTURE_KIND, lectureId).addChild(LECTURE_INSTANCE_KIND, lectureInstanceId).getKey();
+		datastore.delete(key);
 	}
 }

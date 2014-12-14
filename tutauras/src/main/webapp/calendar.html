@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>How to add calendar using jQuery and fullCalendar</title>
+	<!--FullCalendar Dependencies-->
+	<link href='//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.2.3/fullcalendar.min.css' rel='stylesheet' />
+	<link href='//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.2.3/fullcalendar.print.css' rel='stylesheet' media='print' />
+	
+	<!--jQuery-->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script src='https://code.jquery.com/ui/1.9.1/jquery-ui.min.js'></script>
+	
+	<!--FullCalendar-->
+	<script src='js/fullcalendar/lib/moment.min.js'></script>
+	<script src='//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.2.3/fullcalendar.min.js'></script>
+	<script type="text/javascript">
+		
+		/*
+			jQuery document ready
+		*/
+		
+		$(document).ready(function()
+		{
+			/*
+				date store today date.
+				d store today date.
+				m store current month.
+				y store current year.
+			*/
+			var date = new Date();
+			var d = date.getDate();
+			var m = date.getMonth();
+			var y = date.getFullYear();
+			
+			var calendar = $('#calendar').fullCalendar(
+			{
+				header:
+				{
+					left: 'prev,next today',
+					center: 'title',
+					right: 'month'
+				},
+				defaultView: 'month',
+				selectable: false,
+				selectHelper: false,
+				eventClick: function(calEvent, jsEvent, view) {
+
+				        alert('Event: ' + calEvent.id);
+				        alert('Coordinates: ' + jsEvent.pageX + ',' + jsEvent.pageY);
+				        alert('View: ' + view.name);
+				        $(this).css('border-color', 'red');
+
+				 },
+				editable: false,
+				events: [
+					{
+						id: 999,
+						title: 'Repeating Event',
+						start: new Date(y, m, d-3),
+						rendering: 'background',
+						allDay: true
+					},
+					{
+						id: 999,
+						title: 'Repeating Event',
+						start: new Date(y, m, d+4, 16, 0),
+						allDay: false
+					}
+				]
+			});
+			
+		});
+
+	</script>
+	<style type="text/css">
+		body
+		{
+			margin-top: 40px;
+			text-align: center;
+			font-size: 14px;
+			font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+		}
+		#calendar
+		{
+			width: 900px;
+			margin: 0 auto;
+		}
+	</style>
+</head>
+<body>
+
+	<!--FullCalendar container div-->
+	<div id='calendar'></div>
+	
+</body>
+</html>

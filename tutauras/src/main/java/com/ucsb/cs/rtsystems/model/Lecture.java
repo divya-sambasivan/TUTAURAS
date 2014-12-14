@@ -9,7 +9,7 @@ public class Lecture {
 	double lat;
 	double lon;
 	String subjectCode;
-	User tutor;
+	String tutor;
 	int dayOfWeek;
 	int startTimeHour;
 	int startTimeMinute;
@@ -60,11 +60,11 @@ public class Lecture {
 	public void setSubjectCode(String subjectCode) {
 		this.subjectCode = subjectCode;
 	}
-	public User getTutor() {
+	public String getTutor() {
 		return tutor;
 	}
 	@XmlElement
-	public void setTutor(User tutor) {
+	public void setTutor(String tutor) {
 		this.tutor = tutor;
 	}
 	public int getDayOfWeek() {

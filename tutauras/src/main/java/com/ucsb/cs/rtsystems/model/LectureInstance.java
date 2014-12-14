@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class LectureInstance {
 	long ID;
+	String subjectCode;
 	long lectureId;
 	String studentId;
 	Date lectureDate;
@@ -42,5 +43,11 @@ public class LectureInstance {
 		this.studentId = studentId;
 	}
 	
+	public String getSubjectCode() {
+		return subjectCode;
+	}
+	public void setSubjectCode(String subjectCode) {
+		this.subjectCode = subjectCode;
+	}
 
 }
