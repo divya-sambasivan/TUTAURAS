@@ -50,7 +50,7 @@ public class LectureInstanceResource {
 			@PathParam("lecture_id") long lectureId) throws WebApplicationException{
 		ArrayList<LectureInstance> lectureInstances = null;
 		try{
-			lectureInstances = lectureInstanceDao.getLectureInstances(subjectCode, lectureId);
+			lectureInstances = lectureInstanceDao.getLectureInstances(subjectCode, lectureId, true);
 		}catch(EntityNotFoundException e){
 			throw new WebApplicationException(404);
 		}

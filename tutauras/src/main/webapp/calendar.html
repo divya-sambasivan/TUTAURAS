@@ -2,9 +2,8 @@
 <html>
 <head>
   <title>How to add calendar using jQuery and fullCalendar</title>
-	<!--FullCalendar Dependencies-->
-	<link href='//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.2.3/fullcalendar.min.css' rel='stylesheet' />
-	<link href='//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.2.3/fullcalendar.print.css' rel='stylesheet' media='print' />
+	<!--Timepicker-->
+	<link type="text/css" href="stylesheets/bootstrap-timepicker.min.css" rel='stylesheet'/>
 	
 	<!--jQuery-->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -13,6 +12,9 @@
 	<!--FullCalendar-->
 	<script src='js/fullcalendar/lib/moment.min.js'></script>
 	<script src='//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.2.3/fullcalendar.min.js'></script>
+	
+	<!-- Timepicker -->
+	<script src="js/bootstrap-timepicker.min.js"></script>
 	<script type="text/javascript">
 		
 		/*
@@ -90,7 +92,20 @@
 <body>
 
 	<!--FullCalendar container div-->
-	<div id='calendar'></div>
-	
+	<!-- <div id='calendar'></div> -->
+	<div class="input-append bootstrap-timepicker">
+         <input id="timepicker1" type="text" class="input-small">
+         <span class="add-on"><i class="icon-time"></i></span>
+     </div>
+
+     <script type="text/javascript">
+	     $('#timepicker1').timepicker({
+	         minuteStep: 1,
+	         appendWidgetTo:'body',
+	         showSeconds: true,
+	         showMeridian: false,
+	         defaultTime: false
+	     });
+     </script>
 </body>
 </html>

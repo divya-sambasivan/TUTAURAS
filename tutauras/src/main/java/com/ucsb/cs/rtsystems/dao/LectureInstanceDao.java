@@ -12,6 +12,7 @@ import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.datastore.KeyFactory.Builder;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
@@ -34,7 +35,13 @@ public class LectureInstanceDao {
 				  new FilterPredicate("studentId",
 				                      FilterOperator.EQUAL,
 				                      studentId);
-		Query q = new Query(LECTURE_INSTANCE_KIND).setFilter(studentFilter).addSort("lectureDate", Query.SortDirection.ASCENDING);
+		Filter upcomingFilter = 
+				new FilterPredicate("lectureDate",
+									FilterOperator.GREATER_THAN_OR_EQUAL,
+									new Date()
+						);
+		Filter myUpcomingFilter = CompositeFilterOperator.and(studentFilter, upcomingFilter);
+		Query q = new Query(LECTURE_INSTANCE_KIND).setFilter(myUpcomingFilter).addSort("lectureDate", Query.SortDirection.ASCENDING);
 		PreparedQuery pq = datastore.prepare(q);
 		for (Entity lectureInstanceEntity : pq.asIterable()) {
 			lectureInstance = new LectureInstance();
@@ -48,10 +55,18 @@ public class LectureInstanceDao {
 		return lectureInstances;
 	}
 	
-	public ArrayList<LectureInstance> getLectureInstances(String subjectCode, long lectureId) throws EntityNotFoundException{
+	public ArrayList<LectureInstance> getLectureInstances(String subjectCode, long lectureId, boolean onlyUpcoming) throws EntityNotFoundException{
 		ArrayList<LectureInstance> lectureInstances = new ArrayList<LectureInstance>();
 		LectureInstance lectureInstance = new LectureInstance();
 		Query q = new Query(LECTURE_INSTANCE_KIND).setAncestor(new Builder(SubjectDao.SUBJECT_KIND, subjectCode).addChild(LectureDao.LECTURE_KIND, lectureId).getKey());
+		if(onlyUpcoming == true){
+			Filter upcomingFilter = 
+					new FilterPredicate("lectureDate",
+										FilterOperator.GREATER_THAN_OR_EQUAL,
+										new Date()
+							);
+			q.setFilter(upcomingFilter);
+		}
 		PreparedQuery pq = datastore.prepare(q);
 		for (Entity lectureInstanceEntity : pq.asIterable()) {
 			lectureInstance = new LectureInstance();

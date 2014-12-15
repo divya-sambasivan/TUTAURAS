@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Example of Twitter Bootstrap 3 Dynamic Tabs</title>
+<title>Student</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap-theme.min.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -26,7 +26,7 @@
 <div class="student">
 	<nav class="navbar navbar-inverse">
 	    <ul class="nav nav-tabs">
-	        <li class="active"><a data-toggle="tabSwitchMyLectures" href="#myLectures" url="rest/search/lectureInstance?email=" data-target="#myLectures" id="myLecturesTab">My Lectures</a></li>
+	        <li class="active"><a data-toggle="tabSwitchMyLectures" href="#myLectures" url="rest/search/lectureInstance?email=" data-target="#myLectures" id="myLecturesTab">My Upcoming Lectures</a></li>
 	        <li><a data-toggle="tabSwitchNewLecture" href="#newLecture" data-target="#newLecture" id="newLectureTab">New Lecture</a></li>
 	    </ul>
     </nav>
@@ -101,10 +101,14 @@
 			var endTimeHour = myLecture["lecture"]["endTimeHour"];
 			var endTimeMinute = myLecture["lecture"]["endTimeMinute"];
 			var myLectureHTML = LECTURE_TEMPLATE.replace("__profile_link",imageUrl).replace("__subject_code", subjectCode).replace("__tutor_name",tutorName).replace("__lecture_date", lectureDate);
-			myLectureHTML = myLectureHTML.replace("__start_time_h", startTimeHour).replace("__start_time_m",startTimeMinute).replace("__end_time_h",endTimeHour).replace("__end_time_m", endTimeMinute);
+			myLectureHTML = myLectureHTML.replace("__start_time_h", formatDoubleDigit(startTimeHour)).replace("__start_time_m",formatDoubleDigit(startTimeMinute)).replace("__end_time_h",formatDoubleDigit(endTimeHour)).replace("__end_time_m", formatDoubleDigit(endTimeMinute));
 			allLectures += myLectureHTML;
 		}
 		return allLectures;
+	}
+	
+	function formatDoubleDigit(digit){
+		return ("0" + digit).slice(-2);
 	}
 	
 	function getSubjects(subjectsJSON){
@@ -212,6 +216,7 @@
 		
 		$.get(lectureInstancesUrl, function(data) {
 	        bookedDates = getBookedDates(data);
+	        $('#calendar').fullCalendar( 'destroy' );
 	        var calendar = $('#calendar').fullCalendar(
 	        		{
 	        			header:
@@ -284,10 +289,10 @@
 			var subjectCode = lecture["lecture"]["subjectCode"];
 			var tutorName = lecture["tutor"]["firstName"];
 			var dayOfWeek = DAY_OF_WEEK[lecture["lecture"]["dayOfWeek"]];
-			var startTimeHour = lecture["lecture"]["startTimeHour"];
-			var startTimeMinute = lecture["lecture"]["startTimeMinute"];
-			var endTimeHour = lecture["lecture"]["endTimeHour"];
-			var endTimeMinute = lecture["lecture"]["endTimeMinute"];
+			var startTimeHour = formatDoubleDigit(lecture["lecture"]["startTimeHour"]);
+			var startTimeMinute = formatDoubleDigit(lecture["lecture"]["startTimeMinute"]);
+			var endTimeHour = formatDoubleDigit(lecture["lecture"]["endTimeHour"]);
+			var endTimeMinute = formatDoubleDigit(lecture["lecture"]["endTimeMinute"]);
 			var myLectureHTML = LECTURE_TEMPLATE.replace("__profile_link",imageUrl).replace("__subject_code", subjectCode).replace("__tutor_name",tutorName).replace("__day", dayOfWeek);
 			myLectureHTML = myLectureHTML.replace("__start_time_h", startTimeHour).replace("__start_time_m",startTimeMinute).replace("__end_time_h",endTimeHour).replace("__end_time_m", endTimeMinute);
 			myLectureHTML = myLectureHTML.replace("__lecture_id", lectureID);

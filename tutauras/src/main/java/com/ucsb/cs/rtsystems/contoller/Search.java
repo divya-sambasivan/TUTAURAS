@@ -41,9 +41,7 @@ public class Search {
 		ArrayList<LectureInstanceResult> lectureInstanceResults = new ArrayList<LectureInstanceResult>();
 		try{
 			User student = userDao.getUserByEmail(email);
-			System.out.println(student);
 			lectureInstances = lectureInstanceDao.getLectureInstancesByStudent(student.getID());
-			System.out.println(lectureInstances);
 			for(LectureInstance lectureInstance: lectureInstances){
 				lectureInstanceResult = new LectureInstanceResult();
 				lectureInstanceResult.setLectureInstance(lectureInstance);
@@ -57,6 +55,51 @@ public class Search {
 			throw new WebApplicationException(404);
 		}
 		return lectureInstanceResults;
+	}
+	
+	@GET
+	@Path("lectureInstanceForTutor")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ArrayList<LectureInstanceResult> getLectureInstancesForTutor(
+			@QueryParam("tutorEmail") String tutorEmail) throws WebApplicationException{
+		LectureInstanceResult lectureInstanceResult;
+		ArrayList<LectureInstance> lectureInstances;
+		ArrayList<LectureInstanceResult> lectureInstanceResults = new ArrayList<LectureInstanceResult>();
+		try{
+			//Get all the lectures for a tutor
+			User tutor = userDao.getUserByEmail(tutorEmail);
+			ArrayList<Lecture> tutorLectures = lectureDao.getLecturesByTutor(tutor.getID());
+			for(Lecture tutorLecture: tutorLectures){
+				lectureInstances = lectureInstanceDao.getLectureInstances(tutorLecture.getSubjectCode(), tutorLecture.getID(), true);
+				for(LectureInstance lectureInstance: lectureInstances){
+					lectureInstanceResult = new LectureInstanceResult();
+					lectureInstanceResult.setLecture(tutorLecture);
+					lectureInstanceResult.setLectureInstance(lectureInstance);
+					User student = userDao.getUser(lectureInstance.getStudentId());
+					lectureInstanceResult.setStudent(student);
+					lectureInstanceResults.add(lectureInstanceResult);
+				}
+			}
+		}catch(EntityNotFoundException e){
+			throw new WebApplicationException(404);
+		}
+		return lectureInstanceResults;
+	}
+	
+	@GET
+	@Path("lectureForTutor")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ArrayList<Lecture> getLecturesForTutor(
+			@QueryParam("tutorEmail") String tutorEmail) throws WebApplicationException{
+		ArrayList<Lecture> tutorLectures = null;
+		try{
+			//Get all the lectures for a tutor
+			User tutor = userDao.getUserByEmail(tutorEmail);
+			tutorLectures = lectureDao.getLecturesByTutor(tutor.getID());
+		}catch(EntityNotFoundException e){
+			throw new WebApplicationException(404);
+		}
+		return tutorLectures;
 	}
 	
 	@GET

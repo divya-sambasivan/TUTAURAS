@@ -6,6 +6,7 @@ public class LectureInstanceResult {
 	Lecture lecture;
 	Subject subject;
 	User tutor;
+	User student;
 	
 	public LectureInstance getLectureInstance() {
 		return lectureInstance;
@@ -30,6 +31,12 @@ public class LectureInstanceResult {
 	}
 	public void setTutor(User tutor) {
 		this.tutor = tutor;
+	}
+	public User getStudent() {
+		return student;
+	}
+	public void setStudent(User student) {
+		this.student = student;
 	}
 
 }

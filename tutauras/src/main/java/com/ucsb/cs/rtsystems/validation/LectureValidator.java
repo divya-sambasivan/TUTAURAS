@@ -17,10 +17,10 @@ public class LectureValidator {
 	public ArrayList<String> validate(){
 		this.errors = new ArrayList<String>();
 		
-		// day of Week should be between 1 and 7
+		// day of Week should be between 0 and 6
 		int dayOfWeek = lecture.getDayOfWeek();
-		if (dayOfWeek < 1 || dayOfWeek > 7){
-			errors.add("Invalid value for dayOfWeek. Should be 1-7");
+		if (dayOfWeek < 0 || dayOfWeek > 6){
+			errors.add("Invalid value for dayOfWeek. Should be 0-6");
 		}
 		int startTimeHour = lecture.getStartTimeHour();
 		if (startTimeHour < 0 || startTimeHour > 23){
