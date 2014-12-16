@@ -15,19 +15,27 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
 import com.google.appengine.api.datastore.EntityNotFoundException;
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.TaskOptions;
 import com.ucsb.cs.rtsystems.dao.LectureDao;
+import com.ucsb.cs.rtsystems.dao.LectureInstanceDao;
 import com.ucsb.cs.rtsystems.exception.BadRequestException;
 import com.ucsb.cs.rtsystems.model.Lecture;
-import com.ucsb.cs.rtsystems.model.Subject;
+import com.ucsb.cs.rtsystems.model.LectureInstance;
 import com.ucsb.cs.rtsystems.validation.LectureValidator;
 
 @Path("/lecture/{subject_code}")
 public class LectureResource {
 	private LectureDao lectureDao;
+	private LectureInstanceDao lectureInstanceDao;
 	private String lectureId;
+	private Queue queue;
 	
 	public LectureResource(){
 		lectureDao = new LectureDao();
+		lectureInstanceDao = new LectureInstanceDao();
+		queue = QueueFactory.getDefaultQueue();
 	}
 	
 	@GET
@@ -94,6 +102,17 @@ public class LectureResource {
 	public void deleteLecture(
 			@PathParam("subject_code") String subjectCode,
 			@PathParam("lecture_id") long lectureId){
+			/* delete all child instances first */
+			try {
+				ArrayList<LectureInstance> childLectureInstances = lectureInstanceDao.getLectureInstances(subjectCode, lectureId, false);
+				byte[] payload = {};
+				for(LectureInstance childLectureInstance : childLectureInstances){
+					TaskOptions to=TaskOptions.Builder.withUrl("/rest/lecture/"+subjectCode+"/"+lectureId+"/"+childLectureInstance.getID()).method(TaskOptions.Method.DELETE).payload(payload, "application/json");
+					queue.add(to);
+				}
+			} catch (EntityNotFoundException e) {
+				// no children
+			}
 		lectureDao.deleteLecture(lectureId, subjectCode);
 	}
 	

@@ -40,6 +40,12 @@
     </div>
 </div>
 <script>
+	var myEmail;
+	var myUserInfo;
+	
+	function redirectToHome(){
+		window.location.replace("http://"+location.host+"/login.html");
+	}
 
 	hello.init({
 		google   : '609282586889-e1j3bf9p3s3a45uotqel24q43vdero9s.apps.googleusercontent.com'
@@ -60,15 +66,7 @@
 		    .done(function(data) {
 		    	//load initial data into tab
 		    	myUserInfo = data;
-		    	var $this = $('[data-toggle="tabSwitchMyLectures"]')[0],
-		        loadurl = $this.getAttribute('url')+myEmail,
-		        targ = $($this.getAttribute('data-target'))[0];
-				
-				console.log($this);
-
-			    $.get(loadurl, function(data) {
-			        $(targ).html(formatMyList(data));
-			    });
+		    	reloadMyInstances();
 
 		    })
 		    .fail(function() {
@@ -77,14 +75,26 @@
 		    });
 		});
 	});
-
+	
+	function reloadMyInstances(){
+		if(typeof(myUserInfo) == "undefined" || !myUserInfo){
+			redirectToHome();
+		}
+		var $this = $('[data-toggle="tabSwitchMyLectures"]')[0],
+	    loadurl = $this.getAttribute('url')+myUserInfo["email"],
+	    targ = $($this.getAttribute('data-target'))[0];
+	    $.get(loadurl, function(data) {
+	        $(targ).html(formatMyList(data));
+	    });
+	}
+	
 	function formatMyList(myLecturesJSON){
 		var LECTURE_TEMPLATE = ['<div class="media">',
       							'<a class="media-left" href="#">',
         						'<img data-src="holder.js/64x64" alt="64x64" src="__profile_link" data-holder-rendered="true" style="width: 64px; height: 64px;">',
       							'</a>',
       							'<div class="media-body">',
-       	 						'<h4 class="media-heading">Subject: __subject_code</h4>',
+       	 						'<h4 class="media-heading">Subject: __subject_code <button class="btn btn-xs btn-danger deleteInstance" subject=__subject_code lecture=__lecture_id lectureInstanceId=__lecture_instance_id>Delete</button></h4>',
         						'<p>You have a lecture with __tutor_name on __lecture_date from __start_time_h:__start_time_m to __end_time_h:__end_time_m here.</p>',
     							'</div>',
 								'</div>'].join('\n');
@@ -94,6 +104,8 @@
 			var myLecture = myLecturesJSON[i];
 			var imageUrl = myLecture["tutor"]["pictureUrl"];
 			var subjectCode = myLecture["lecture"]["subjectCode"];
+			var lectureId = myLecture["lecture"]["ID"];
+			var lectureInstanceId = myLecture["lectureInstance"]["ID"];
 			var tutorName = myLecture["tutor"]["firstName"];
 			var lectureDate = myLecture["lectureInstance"]["lectureDate"];
 			var startTimeHour = myLecture["lecture"]["startTimeHour"];
@@ -102,6 +114,7 @@
 			var endTimeMinute = myLecture["lecture"]["endTimeMinute"];
 			var myLectureHTML = LECTURE_TEMPLATE.replace("__profile_link",imageUrl).replace("__subject_code", subjectCode).replace("__tutor_name",tutorName).replace("__lecture_date", lectureDate);
 			myLectureHTML = myLectureHTML.replace("__start_time_h", formatDoubleDigit(startTimeHour)).replace("__start_time_m",formatDoubleDigit(startTimeMinute)).replace("__end_time_h",formatDoubleDigit(endTimeHour)).replace("__end_time_m", formatDoubleDigit(endTimeMinute));
+			myLectureHTML = myLectureHTML.replace("__subject_code", subjectCode).replace("__lecture_id", lectureId).replace("__lecture_instance_id", lectureInstanceId);
 			allLectures += myLectureHTML;
 		}
 		return allLectures;
@@ -214,7 +227,14 @@
 		
 		var bookedDates = [];
 		
+		$('#calendarModal').on('shown.bs.modal', function() {
+			$('#calendar').fullCalendar('render');
+	    })
+		
 		$.get(lectureInstancesUrl, function(data) {
+			if(typeof(myUserInfo) == "undefined" || !myUserInfo){
+				redirectToHome();
+			}
 	        bookedDates = getBookedDates(data);
 	        $('#calendar').fullCalendar( 'destroy' );
 	        var calendar = $('#calendar').fullCalendar(
@@ -263,6 +283,7 @@
 	        			events: getLectureEvents(bookedDates, lectureDates, startTimeHour, startTimeMinute, endTimeHour, endTimeMinute, subjectCode, lectureId)
 	        		});
 	        		$('#calendarModal').modal('show');
+	        		
 	    	});
 	}
 	
@@ -304,6 +325,9 @@
 	}
 	
 	$('[data-toggle="tabSwitchMyLectures"]').click(function(e) {
+		if(typeof(myEmail) == "undefined" || !myEmail){
+			redirectToLogin();
+		}
 	    var $this = $(this),
 	        loadurl = $this.attr('url')+myEmail,
 	        targ = $this.attr('data-target');
@@ -327,6 +351,18 @@
 	
 	    $this.tab('show');
 	    return false;
+	});
+	
+	$('body').on('click', '.deleteInstance', function(e){
+		var $this = $(this),
+		    deleteUrl = "rest/lectureInstance/"+$this.attr('subject')+'/'+$this.attr('lecture')+'/'+$this.attr('lectureInstanceid');
+		$.ajax({
+		    url: deleteUrl,
+		    type: 'DELETE',
+		    success: function(result) {
+		    	reloadMyInstances();
+		    }
+		});
 	});
 	
 	function subjectSelected() {

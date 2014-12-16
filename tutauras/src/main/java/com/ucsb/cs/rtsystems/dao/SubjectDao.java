@@ -52,23 +52,17 @@ public class SubjectDao {
 		return subjects;
 	}
 	
-	public Subject getSubject(String subjectCode){
+	public Subject getSubject(String subjectCode) throws EntityNotFoundException{
 		Subject subject = null;
-		try {
-			Entity subjectEntity = datastore.get(KeyFactory.createKey(SUBJECT_KIND, subjectCode));
-			if(subjectEntity!=null){
-				subject = new Subject();
-				subject.setCode((String)subjectEntity.getKey().getName());
-				subject.setName((String)subjectEntity.getProperty("name"));
-				subject.setDescription((String)subjectEntity.getProperty("description"));
-				subject.setImageUrl((String)subjectEntity.getProperty("imageUrl"));
-			}
-			return subject;
-		} catch (EntityNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		Entity subjectEntity = datastore.get(KeyFactory.createKey(SUBJECT_KIND, subjectCode));
+		if(subjectEntity!=null){
+			subject = new Subject();
+			subject.setCode((String)subjectEntity.getKey().getName());
+			subject.setName((String)subjectEntity.getProperty("name"));
+			subject.setDescription((String)subjectEntity.getProperty("description"));
+			subject.setImageUrl((String)subjectEntity.getProperty("imageUrl"));
 		}
-		return null;
+		return subject;
 	}
 	
 	public void updateSubject(Subject subject){

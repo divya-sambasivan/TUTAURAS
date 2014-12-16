@@ -123,39 +123,13 @@
     </div>
 </div>
 <script>
+	var userInfo;
+	var myEmail;
 
-	/*TODO: test*/
-		
-	$(function() {
-	//twitter bootstrap script
-		$("button#bntNewSubject").click(function(){
-				var formData = new FormData($('form.contact')[0]);
-			   	$.ajax({
-	    		   	type: "POST",
-					url: "subjectUploadProxy",
-					cache: false,
-					contentType: false,
-					processData: false,
-					data: formData,
-					success: function(){
-						  bootbox.alert("The subject has been added");
-						  populateSubjectList();
-					  },
-					  error: function(){
-						  alert("Uh oh! Something's gone wrong...");
-					  },
-					  complete: function(){
-						  $('#showNewSubjectModal').modal('hide');
-						  
-						  /*reset values*/
-						  $('#subjectCode')[0].value = "";
-						  $('#subjectName')[0].value = "";
-						  $('#subjectDescription')[0].value = "";
-					  }
-			});
-		});
-	});
-	
+	function redirectToHome(){
+		window.location.replace("http://"+location.host+"/login.html");
+	}
+
 	/*timepicker formatting */
 	
 	$('#startTimePicker').timepicker({
@@ -175,7 +149,7 @@
     });
 	
 	/*timepicker formatting - ends*/
-
+	
 	hello.init({
 		google   : '609282586889-e1j3bf9p3s3a45uotqel24q43vdero9s.apps.googleusercontent.com'
 	},
@@ -195,13 +169,7 @@
 		    .done(function(data) {
 		    	//load initial data into tab
 		    	myUserInfo = data;
-		    	var $this = $('[data-toggle="tabSwitchMyLectures"]')[0],
-		        loadurl = $this.getAttribute('url')+myEmail,
-		        targ = $($this.getAttribute('data-target'))[0];
-			    $.get(loadurl, function(data) {
-			        $(targ).html(formatMyList(data));
-			    });
-
+				reloadMyInstances();
 		    })
 		    .fail(function() {
 		    	$('#registerModal').find('.modal-title').text('Hi ' + r.first_name);
@@ -220,7 +188,7 @@
         						'<img data-src="holder.js/64x64" alt="64x64" src="__profile_link" data-holder-rendered="true" style="width: 64px; height: 64px;">',
       							'</a>',
       							'<div class="media-body">',
-       	 						'<h4 class="media-heading">Subject: __subject_code</h4>',
+       	 						'<h4 class="media-heading">Subject: __subject_code <button class="btn btn-xs btn-danger deleteInstance" subject=__subject_code lecture=__lecture_id lectureInstanceId=__lecture_instance_id>Delete</button></h4>',
         						'<p>You have a lecture with __tutor_name on __lecture_date from __start_time_h:__start_time_m to __end_time_h:__end_time_m here.</p>',
     							'</div>',
 								'</div>'].join('\n');
@@ -230,6 +198,8 @@
 			var myLecture = myLecturesJSON[i];
 			var imageUrl = myLecture["student"]["pictureUrl"];
 			var subjectCode = myLecture["lecture"]["subjectCode"];
+			var lectureId = myLecture["lecture"]["ID"];
+			var lectureInstanceId = myLecture["lectureInstance"]["ID"];
 			var tutorName = myLecture["student"]["firstName"];
 			var lectureDate = myLecture["lectureInstance"]["lectureDate"];
 			var startTimeHour = formatDoubleDigit(myLecture["lecture"]["startTimeHour"]);
@@ -238,6 +208,7 @@
 			var endTimeMinute = formatDoubleDigit(myLecture["lecture"]["endTimeMinute"]);
 			var myLectureHTML = LECTURE_TEMPLATE.replace("__profile_link",imageUrl).replace("__subject_code", subjectCode).replace("__tutor_name",tutorName).replace("__lecture_date", lectureDate);
 			myLectureHTML = myLectureHTML.replace("__start_time_h", startTimeHour).replace("__start_time_m",startTimeMinute).replace("__end_time_h",endTimeHour).replace("__end_time_m", endTimeMinute);
+			myLectureHTML = myLectureHTML.replace("__subject_code", subjectCode).replace("__lecture_id", lectureId).replace("__lecture_instance_id", lectureInstanceId);
 			allLectures += myLectureHTML;
 		}
 		return allLectures;
@@ -257,6 +228,9 @@
 	
 	
 	$('[data-toggle="tabSwitchMyLectures"]').click(function(e) {
+		if(typeof(myEmail) == "undefined" || !myEmail){
+			redirectToLogin();
+		}
 	    var $this = $(this),
 	        loadurl = $this.attr('url')+myEmail,
 	        targ = $this.attr('data-target');
@@ -269,16 +243,34 @@
 	    return false;
 	});
 	
-	$('[data-toggle="tabSwitchMyParentLectures"]').click(function(e) {
-	    var $this = $(this),
-	        loadurl = $this.attr('url')+myEmail,
-	        targ = $this.attr('data-target');
+	function reloadMyInstances(){
+		if(typeof(myEmail) == "undefined" || !myEmail){
+			redirectToHome();
+		}
+		var $this = $('[data-toggle="tabSwitchMyLectures"]')[0],
+        loadurl = $this.getAttribute('url')+myEmail,
+        targ = $($this.getAttribute('data-target'))[0];
+	    $.get(loadurl, function(data) {
+	        $(targ).html(formatMyList(data));
+	    }); 
+	}
 	
+	function reloadMyLectures(){
+		if(typeof(myEmail) == "undefined" || !myEmail){
+			redirectToHome();
+		}
+		var $this = $('[data-toggle="tabSwitchMyParentLectures"]')[0],
+        loadurl = $this.getAttribute('url')+myEmail,
+        targ = $($this.getAttribute('data-target'))[0];
 	    $.get(loadurl, function(data) {
 	        $(targ).html(formatLecturesList(data));
-	    });
+	    }); 
+	}
 	
-	    $this.tab('show');
+	$('[data-toggle="tabSwitchMyParentLectures"]').click(function(e) {
+		reloadMyLectures();
+	
+	    $(this).tab('show');
 	    return false;
 	});
 	
@@ -289,7 +281,7 @@
         						'<img data-src="holder.js/64x64" alt="64x64" src="__subject_link" data-holder-rendered="true" style="width: 64px; height: 64px;">',
       							'</a>',
       							'<div class="media-body">',
-       	 						'<h4 class="media-heading">Subject: __subject_code</h4>',
+       	 						'<h4 class="media-heading">Subject: __subject_code <button class="btn btn-xs btn-danger deleteLecture" subject=__subject_code lecture=__lecture_id>Delete</button></h4>',
         						'<p>You teach __subject_name on __lecture_days from __start_time_h:__start_time_m to __end_time_h:__end_time_m here.</p>',
     							'</div>',
 								'</div>'].join('\n');
@@ -298,18 +290,26 @@
 		for(i=0;i<myLecturesJSON.length;i++){
 			var myLecture = myLecturesJSON[i];
 			var subjectCode = myLecture["lecture"]["subjectCode"];
-			var subjectImage = myLecture["subject"]["imageUrl"];
-			if(!subjectImage){
-				subjectImage = "images/subjectDefault.jpg";
-			}
-			var subjectName = myLecture["subject"]["name"];
 			var lectureDay = myLecture["lecture"]["dayOfWeek"];
+			var lectureId = myLecture["lecture"]["ID"];
 			var startTimeHour = formatDoubleDigit(myLecture["lecture"]["startTimeHour"]);
 			var startTimeMinute = formatDoubleDigit(myLecture["lecture"]["startTimeMinute"]);
 			var endTimeHour = formatDoubleDigit(myLecture["lecture"]["endTimeHour"]);
 			var endTimeMinute = formatDoubleDigit(myLecture["lecture"]["endTimeMinute"]);
+			
+			var subjectImage = "images/subjectDefault.jpg";
+			var subjectName = "";
+			if(myLecture["subject"]){
+				var subjectImage = myLecture["subject"]["imageUrl"];
+				if(!subjectImage){
+					subjectImage = "images/subjectDefault.jpg";
+				}
+				var subjectName = myLecture["subject"]["name"];
+			}
+			
 			var myLectureHTML = LECTURE_TEMPLATE.replace("__subject_code", subjectCode).replace("__subject_name", subjectName).replace("__lecture_day",DAY_OF_WEEK[lectureDay]).replace("__subject_link", subjectImage);
 			myLectureHTML = myLectureHTML.replace("__start_time_h", startTimeHour).replace("__start_time_m",startTimeMinute).replace("__end_time_h",endTimeHour).replace("__end_time_m", endTimeMinute);
+			myLectureHTML = myLectureHTML.replace("__subject_code", subjectCode).replace("__lecture_id", lectureId);
 			allLectures += myLectureHTML;
 		}
 		return allLectures;
@@ -338,6 +338,9 @@
 	}
 	
 	function submitData(){
+		if(typeof(myUserInfo) == "undefined" || !myUserInfo){
+			redirectToHome();
+		}
         var lectureData = {};
         lectureData["subjectCode"] = $('#subjectSelect')[0].value;
         lectureData["tutor"] = myUserInfo["ID"];
@@ -379,42 +382,60 @@
         //console.log(lectureData);
     }
 	
-	/*show new subject*/
-	$('#btnShowNewSubject').on('click', function (e) {
-		$('#showNewSubjectModal').modal('show');
+	$('body').on('click', '.deleteLecture', function(e){
+		var $this = $(this),
+		    deleteUrl = "rest/lecture/"+$this.attr('subject')+'/'+$this.attr('lecture');
+		$.ajax({
+		    url: deleteUrl,
+		    type: 'DELETE',
+		    success: function(result) {
+		    	reloadMyLectures();
+		    }
+		});
 	});
 	
-	/*create a new subject*/
-	/*$('#bntNewSubject').on('click', function(e){
-		var subject = {};
-		subject["code"] = $('#subjectCode')[0].value;
-		subject["name"] = $('#subjectName')[0].value;
-		subject["description"] = $('#subjectDescription')[0].value;
-		
-		var createSubjectUrl = "http://localhost:8080/rest/subject";
+	$('body').on('click', '.deleteInstance', function(e){
+		var $this = $(this),
+		    deleteUrl = "rest/lectureInstance/"+$this.attr('subject')+'/'+$this.attr('lecture')+'/'+$this.attr('lectureInstanceid');
 		$.ajax({
-			  url: createSubjectUrl,
-			  type: "POST",
-			  data: JSON.stringify(subject),
-			  contentType: "application/json; charset=utf-8",
-			  dataType: "json",
-			  success: function(){
-				  bootbox.alert("The subject has been added");
-				  populateSubjectList();
-			  },
-			  error: function(){
-				  alert("Uh oh! Something's gone wrong...");
-			  },
-			  complete: function(){
-				  $('#showNewSubjectModal').modal('hide');
-				  
-				  /*reset values
-				  $('#subjectCode')[0].value = "";
-				  $('#subjectName')[0].value = "";
-				  $('#subjectDescription')[0].value = "";
-			  }
-			})
-	});*/
+		    url: deleteUrl,
+		    type: 'DELETE',
+		    success: function(result) {
+		    	reloadMyInstances();
+		    }
+		});
+	});
+	
+	$(function() {
+		//twitter bootstrap script
+			$("button#bntNewSubject").click(function(){
+					var formData = new FormData($('form.contact')[0]);
+				   	$.ajax({
+		    		   	type: "POST",
+						url: "subjectUploadProxy",
+						cache: false,
+						contentType: false,
+						processData: false,
+						data: formData,
+						success: function(){
+							  bootbox.alert("The subject has been added");
+							  populateSubjectList();
+						  },
+						  error: function(){
+							  alert("Uh oh! Something's gone wrong...");
+						  },
+						  complete: function(){
+							  $('#showNewSubjectModal').modal('hide');
+							  
+							  /*reset values*/
+							  $('#subjectCode')[0].value = "";
+							  $('#subjectName')[0].value = "";
+							  $('#subjectDescription')[0].value = "";
+						  }
+				});
+			});
+	});
+		
 </script>
 </body>
 </html>                                		

@@ -49,9 +49,17 @@ public class Search {
 			for(LectureInstance lectureInstance: lectureInstances){
 				lectureInstanceResult = new LectureInstanceResult();
 				lectureInstanceResult.setLectureInstance(lectureInstance);
-				Lecture lecture = lectureDao.getLecture(lectureInstance.getSubjectCode(), lectureInstance.getLectureId());
+				Lecture lecture;
+				User tutor;
+				try{
+					lecture = lectureDao.getLecture(lectureInstance.getSubjectCode(), lectureInstance.getLectureId());
+					tutor = userDao.getUser(lecture.getTutor());
+				}catch(EntityNotFoundException e){
+					lecture = null;
+					tutor = null;
+					continue;
+				}
 				lectureInstanceResult.setLecture(lecture);
-				User tutor = userDao.getUser(lecture.getTutor());
 				lectureInstanceResult.setTutor(tutor);
 				lectureInstanceResults.add(lectureInstanceResult);
 			}
@@ -74,14 +82,22 @@ public class Search {
 			User tutor = userDao.getUserByEmail(tutorEmail);
 			ArrayList<Lecture> tutorLectures = lectureDao.getLecturesByTutor(tutor.getID());
 			for(Lecture tutorLecture: tutorLectures){
-				lectureInstances = lectureInstanceDao.getLectureInstances(tutorLecture.getSubjectCode(), tutorLecture.getID(), true);
-				for(LectureInstance lectureInstance: lectureInstances){
-					lectureInstanceResult = new LectureInstanceResult();
-					lectureInstanceResult.setLecture(tutorLecture);
-					lectureInstanceResult.setLectureInstance(lectureInstance);
-					User student = userDao.getUser(lectureInstance.getStudentId());
-					lectureInstanceResult.setStudent(student);
-					lectureInstanceResults.add(lectureInstanceResult);
+				try{
+					lectureInstances = lectureInstanceDao.getLectureInstances(tutorLecture.getSubjectCode(), tutorLecture.getID(), true);
+					for(LectureInstance lectureInstance: lectureInstances){
+						lectureInstanceResult = new LectureInstanceResult();
+						lectureInstanceResult.setLecture(tutorLecture);
+						lectureInstanceResult.setLectureInstance(lectureInstance);
+						try{
+							User student = userDao.getUser(lectureInstance.getStudentId());
+							lectureInstanceResult.setStudent(student);
+						}catch(EntityNotFoundException e){
+							continue;
+						}
+						lectureInstanceResults.add(lectureInstanceResult);
+					}
+				}catch(EntityNotFoundException e){
+					continue;
 				}
 			}
 		}catch(EntityNotFoundException e){
@@ -104,7 +120,12 @@ public class Search {
 			tutorLectures = lectureDao.getLecturesByTutor(tutor.getID());
 			for(Lecture tutorLecture: tutorLectures){
 				lectureResult = new LectureResult();
-				Subject subject = subjectDao.getSubject(tutorLecture.getSubjectCode());
+				Subject subject;
+				try{
+					subject = subjectDao.getSubject(tutorLecture.getSubjectCode());
+				}catch(EntityNotFoundException e){
+					subject = null;
+				}
 				lectureResult.setLecture(tutorLecture);
 				lectureResult.setSubject(subject);
 				lectureResults.add(lectureResult);
