@@ -3,7 +3,14 @@ package com.ucsb.cs.rtsystems.model;
 public class LectureResult {
 	Lecture lecture;
 	User tutor;
+	Subject subject;
 	
+	public Subject getSubject() {
+		return subject;
+	}
+	public void setSubject(Subject subject) {
+		this.subject = subject;
+	}
 	public Lecture getLecture() {
 		return lecture;
 	}

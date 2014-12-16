@@ -88,23 +88,31 @@
 				        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
 				        <h4 class="modal-title" id="myModalLabel">Create Subject</h4>
 				      </div>
-				      <div class="modal-body">
-				      		<div>
-					        	<label for="subjectCode">Subject Code</label>
-					        </div><div>
-					        	<input id="subjectCode" type="text">
-				        	</div>
-				        	<div>
-					        	<label for="subjectName">Subject Name</label>
-					        </div><div>
-					        	<input id="subjectName" type="text">
-				        	</div>
-				        	<div>
-					        	<label for="subjectDescription">Description</label>
-					        </div><div>
-					        	<textarea id="subjectDescription"></textarea>
-				        	</div>
-				        </div>
+				      <form class="contact">
+						  <fieldset>
+						      <div class="modal-body">
+						      		<div>
+							        	<label for="subjectCode">Subject Code</label>
+							        </div><div>
+							        	<input id="subjectCode" type="text" name="subjectCode">
+						        	</div>
+						        	<div>
+							        	<label for="subjectName">Subject Name</label>
+							        </div><div>
+							        	<input id="subjectName" type="text" name="subjectName">
+						        	</div>
+						        	<div>
+							        	<label for="subjectDescription">Description</label>
+							        </div><div>
+							        	<textarea class="input-xlarge" name="subjectDescription" rows="3" id="subjectDescription"></textarea>
+						        	</div><div>
+						        		<label for="subjectImageChooser">Picture</label>
+						        	</div><div>
+						        		<input type="file" name="subjectImage" id="subjectImageChooser" size="30" />
+						        	</div>
+						        </div>
+						    </fieldset>
+					  </form>
 				      <div class="modal-footer">
 				        <button type="button" class="btn btn-primary" id="bntNewSubject">Create</button>
 				      </div>
@@ -115,6 +123,38 @@
     </div>
 </div>
 <script>
+
+	/*TODO: test*/
+		
+	$(function() {
+	//twitter bootstrap script
+		$("button#bntNewSubject").click(function(){
+				var formData = new FormData($('form.contact')[0]);
+			   	$.ajax({
+	    		   	type: "POST",
+					url: "subjectUploadProxy",
+					cache: false,
+					contentType: false,
+					processData: false,
+					data: formData,
+					success: function(){
+						  bootbox.alert("The subject has been added");
+						  populateSubjectList();
+					  },
+					  error: function(){
+						  alert("Uh oh! Something's gone wrong...");
+					  },
+					  complete: function(){
+						  $('#showNewSubjectModal').modal('hide');
+						  
+						  /*reset values*/
+						  $('#subjectCode')[0].value = "";
+						  $('#subjectName')[0].value = "";
+						  $('#subjectDescription')[0].value = "";
+					  }
+			});
+		});
+	});
 	
 	/*timepicker formatting */
 	
@@ -246,24 +286,29 @@
 		var DAY_OF_WEEK = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 		var LECTURE_TEMPLATE = ['<div class="media">',
       							'<a class="media-left" href="#">',
-        						'<img data-src="holder.js/64x64" alt="64x64" src="__profile_link" data-holder-rendered="true" style="width: 64px; height: 64px;">',
+        						'<img data-src="holder.js/64x64" alt="64x64" src="__subject_link" data-holder-rendered="true" style="width: 64px; height: 64px;">',
       							'</a>',
       							'<div class="media-body">',
        	 						'<h4 class="media-heading">Subject: __subject_code</h4>',
-        						'<p>You teach __subject_code on __lecture_days from __start_time_h:__start_time_m to __end_time_h:__end_time_m here.</p>',
+        						'<p>You teach __subject_name on __lecture_days from __start_time_h:__start_time_m to __end_time_h:__end_time_m here.</p>',
     							'</div>',
 								'</div>'].join('\n');
 		var allLectures = "";
 		var i;
 		for(i=0;i<myLecturesJSON.length;i++){
 			var myLecture = myLecturesJSON[i];
-			var subjectCode = myLecture["subjectCode"];
-			var lectureDay = myLecture["dayOfWeek"];
-			var startTimeHour = formatDoubleDigit(myLecture["startTimeHour"]);
-			var startTimeMinute = formatDoubleDigit(myLecture["startTimeMinute"]);
-			var endTimeHour = formatDoubleDigit(myLecture["endTimeHour"]);
-			var endTimeMinute = formatDoubleDigit(myLecture["endTimeMinute"]);
-			var myLectureHTML = LECTURE_TEMPLATE.replace("__subject_code", subjectCode).replace("__subject_code", subjectCode).replace("__lecture_day",DAY_OF_WEEK[lectureDay]);
+			var subjectCode = myLecture["lecture"]["subjectCode"];
+			var subjectImage = myLecture["subject"]["imageUrl"];
+			if(!subjectImage){
+				subjectImage = "images/subjectDefault.jpg";
+			}
+			var subjectName = myLecture["subject"]["name"];
+			var lectureDay = myLecture["lecture"]["dayOfWeek"];
+			var startTimeHour = formatDoubleDigit(myLecture["lecture"]["startTimeHour"]);
+			var startTimeMinute = formatDoubleDigit(myLecture["lecture"]["startTimeMinute"]);
+			var endTimeHour = formatDoubleDigit(myLecture["lecture"]["endTimeHour"]);
+			var endTimeMinute = formatDoubleDigit(myLecture["lecture"]["endTimeMinute"]);
+			var myLectureHTML = LECTURE_TEMPLATE.replace("__subject_code", subjectCode).replace("__subject_name", subjectName).replace("__lecture_day",DAY_OF_WEEK[lectureDay]).replace("__subject_link", subjectImage);
 			myLectureHTML = myLectureHTML.replace("__start_time_h", startTimeHour).replace("__start_time_m",startTimeMinute).replace("__end_time_h",endTimeHour).replace("__end_time_m", endTimeMinute);
 			allLectures += myLectureHTML;
 		}
@@ -340,7 +385,7 @@
 	});
 	
 	/*create a new subject*/
-	$('#bntNewSubject').on('click', function(e){
+	/*$('#bntNewSubject').on('click', function(e){
 		var subject = {};
 		subject["code"] = $('#subjectCode')[0].value;
 		subject["name"] = $('#subjectName')[0].value;
@@ -363,13 +408,13 @@
 			  complete: function(){
 				  $('#showNewSubjectModal').modal('hide');
 				  
-				  /*reset values*/
+				  /*reset values
 				  $('#subjectCode')[0].value = "";
 				  $('#subjectName')[0].value = "";
 				  $('#subjectDescription')[0].value = "";
 			  }
 			})
-	});
+	});*/
 </script>
 </body>
 </html>                                		

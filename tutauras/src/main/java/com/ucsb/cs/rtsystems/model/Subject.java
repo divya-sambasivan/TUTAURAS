@@ -15,6 +15,7 @@ public class Subject implements Serializable{
 	String code;
 	String name;
 	String description;
+	String imageUrl;
 
 	public String getCode() {
 		return code;
@@ -36,6 +37,12 @@ public class Subject implements Serializable{
 	@XmlElement
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	public String getImageUrl() {
+		return imageUrl;
+	}
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 
 }

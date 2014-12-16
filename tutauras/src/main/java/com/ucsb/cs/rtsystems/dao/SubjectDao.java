@@ -43,6 +43,7 @@ public class SubjectDao {
 				subject.setCode((String)subjectEntity.getKey().getName());
 				subject.setName((String)subjectEntity.getProperty("name"));
 				subject.setDescription((String)subjectEntity.getProperty("description"));
+				subject.setImageUrl((String)subjectEntity.getProperty("imageUrl"));
 				subjects.add(subject);
 			}
 			syncCache.put(CACHE_KEY, subjects, fiveMinutes);
@@ -60,6 +61,7 @@ public class SubjectDao {
 				subject.setCode((String)subjectEntity.getKey().getName());
 				subject.setName((String)subjectEntity.getProperty("name"));
 				subject.setDescription((String)subjectEntity.getProperty("description"));
+				subject.setImageUrl((String)subjectEntity.getProperty("imageUrl"));
 			}
 			return subject;
 		} catch (EntityNotFoundException e) {
@@ -74,6 +76,7 @@ public class SubjectDao {
 		Entity subjectEntity = new Entity(SUBJECT_KIND, subject.getCode());
 		subjectEntity.setProperty("name", subject.getName());
 		subjectEntity.setProperty("description", subject.getDescription());
+		subjectEntity.setProperty("imageUrl", subject.getImageUrl());
 		datastore.put(subjectEntity);
 	}
 	
@@ -82,6 +85,7 @@ public class SubjectDao {
 		Entity subjectEntity = new Entity(SUBJECT_KIND, subject.getCode());
 		subjectEntity.setProperty("name", subject.getName());
 		subjectEntity.setProperty("description", subject.getDescription());
+		subjectEntity.setProperty("imageUrl", subject.getImageUrl());
 		datastore.put(subjectEntity);
 	}
 	

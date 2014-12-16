@@ -12,11 +12,13 @@ import javax.ws.rs.core.MediaType;
 import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.ucsb.cs.rtsystems.dao.LectureDao;
 import com.ucsb.cs.rtsystems.dao.LectureInstanceDao;
+import com.ucsb.cs.rtsystems.dao.SubjectDao;
 import com.ucsb.cs.rtsystems.dao.UserDao;
 import com.ucsb.cs.rtsystems.model.Lecture;
 import com.ucsb.cs.rtsystems.model.LectureInstance;
 import com.ucsb.cs.rtsystems.model.LectureInstanceResult;
 import com.ucsb.cs.rtsystems.model.LectureResult;
+import com.ucsb.cs.rtsystems.model.Subject;
 import com.ucsb.cs.rtsystems.model.User;
 
 @Path("/search")
@@ -24,11 +26,13 @@ public class Search {
 	private LectureInstanceDao lectureInstanceDao;
 	private UserDao userDao;
 	private LectureDao lectureDao;
+	private SubjectDao subjectDao;
 	
 	public Search(){
 		this.lectureInstanceDao = new LectureInstanceDao();
 		this.lectureDao = new LectureDao();
 		this.userDao = new UserDao();
+		this.subjectDao = new SubjectDao();
 	}
 		
 	@GET
@@ -89,17 +93,26 @@ public class Search {
 	@GET
 	@Path("lectureForTutor")
 	@Produces(MediaType.APPLICATION_JSON)
-	public ArrayList<Lecture> getLecturesForTutor(
+	public ArrayList<LectureResult> getLecturesForTutor(
 			@QueryParam("tutorEmail") String tutorEmail) throws WebApplicationException{
+		ArrayList<LectureResult> lectureResults = new ArrayList<LectureResult>();
 		ArrayList<Lecture> tutorLectures = null;
+		LectureResult lectureResult;
 		try{
 			//Get all the lectures for a tutor
 			User tutor = userDao.getUserByEmail(tutorEmail);
 			tutorLectures = lectureDao.getLecturesByTutor(tutor.getID());
+			for(Lecture tutorLecture: tutorLectures){
+				lectureResult = new LectureResult();
+				Subject subject = subjectDao.getSubject(tutorLecture.getSubjectCode());
+				lectureResult.setLecture(tutorLecture);
+				lectureResult.setSubject(subject);
+				lectureResults.add(lectureResult);
+			}
 		}catch(EntityNotFoundException e){
 			throw new WebApplicationException(404);
 		}
-		return tutorLectures;
+		return lectureResults;
 	}
 	
 	@GET
