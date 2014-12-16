@@ -12,6 +12,11 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.ucsb.cs.rtsystems.model.User;
 
+/**
+ * Provides datastore access to the USER Kind
+ * @author divya_000
+ *
+ */
 public class UserDao {
 	
 	private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();;
@@ -20,6 +25,11 @@ public class UserDao {
 	public UserDao(){
 	}
 	
+	/**
+	 * Checks if user exists in the datastore
+	 * @param ID user id
+	 * @return true if user exists in the datastore; false otherwise
+	 */
 	public boolean isUser(String ID){
 		try {
 			this.getUser(ID);
@@ -29,6 +39,12 @@ public class UserDao {
 		}
 	}
 	
+	/**
+	 * Retrieves a user by the email id specified. If multiple entries exist, only the first one is returned.
+	 * @param email
+	 * @return User
+	 * @throws EntityNotFoundException
+	 */
 	public User getUserByEmail(String email) throws EntityNotFoundException{
 		User user = null;
 		Filter emailFilter =
@@ -50,6 +66,12 @@ public class UserDao {
 		return user;
 	}
 	
+	/**
+	 * Retrieves the specified user; identified by user id
+	 * @param ID
+	 * @return User
+	 * @throws EntityNotFoundException
+	 */
 	public User getUser(String ID) throws EntityNotFoundException{
 		User user = null;
 		Entity userEntity = datastore.get(KeyFactory.createKey(USER_KIND, ID));
@@ -65,6 +87,10 @@ public class UserDao {
 		return user;
 	}
 	
+	/**
+	 * Creates a new USER Entity specified by {@user}. 
+	 * @param user the new user to create
+	 */
 	public void addUser(User user){
 		Entity userEntity = new Entity(USER_KIND, user.getID());
 		userEntity.setProperty("firstName", user.getFirstName());
@@ -75,6 +101,11 @@ public class UserDao {
 		datastore.put(userEntity);
 	}
 	
+	/**
+	 * Updates the user specified with fields specified in {@user}
+	 * @param user
+	 * @throws EntityNotFoundException
+	 */
 	public void updateUser(User user) throws EntityNotFoundException{
 		Entity userEntity = datastore.get(KeyFactory.createKey(USER_KIND, user.getID()));
 		userEntity.setProperty("firstName", user.getFirstName());
@@ -85,6 +116,10 @@ public class UserDao {
 		datastore.put(userEntity);
 	}
 	
+	/**
+	 * Deletes user specified by {@ID} if found; does nothing otherwise.
+	 * @param ID
+	 */
 	public void deleteUser(long ID){
 		datastore.delete(KeyFactory.createKey(USER_KIND, ID));
 	}

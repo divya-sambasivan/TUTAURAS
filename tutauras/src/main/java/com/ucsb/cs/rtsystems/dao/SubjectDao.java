@@ -15,7 +15,11 @@ import com.google.appengine.api.memcache.Expiration;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.ucsb.cs.rtsystems.model.Subject;
-
+/**
+ * Provides datastore access to the SUBJECT Kind
+ * @author divya_000
+ *
+ */
 public class SubjectDao {
 	
 	private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
@@ -28,7 +32,11 @@ public class SubjectDao {
 		syncCache.setErrorHandler(ErrorHandlers.getConsistentLogAndContinue(Level.INFO));
 		fiveMinutes = Expiration.byDeltaSeconds(300);
 	}
-
+	
+	/**
+	 * Get all subjects in the SUBJECT kind. Caches results for 5 minutes.
+	 * @return a list of all subjects
+	 */
 	public ArrayList<Subject> getAllSubjects(){
 		Query q = new Query(SUBJECT_KIND);
 		PreparedQuery pq = datastore.prepare(q);
@@ -52,6 +60,12 @@ public class SubjectDao {
 		return subjects;
 	}
 	
+	/**
+	 * Returns subject specified; identified by the subject code, it was created with
+	 * @param subjectCode
+	 * @return specified subject
+	 * @throws EntityNotFoundException
+	 */
 	public Subject getSubject(String subjectCode) throws EntityNotFoundException{
 		Subject subject = null;
 		Entity subjectEntity = datastore.get(KeyFactory.createKey(SUBJECT_KIND, subjectCode));
@@ -65,6 +79,10 @@ public class SubjectDao {
 		return subject;
 	}
 	
+	/**
+	 * Updates the specified subject with fields from the subject object
+	 * @param subject the updated subject object
+	 */
 	public void updateSubject(Subject subject){
 		/*TODO: check if subject with code exists */
 		Entity subjectEntity = new Entity(SUBJECT_KIND, subject.getCode());
@@ -74,6 +92,10 @@ public class SubjectDao {
 		datastore.put(subjectEntity);
 	}
 	
+	/**
+	 * Creates a new subject
+	 * @param subject new subject to be created
+	 */
 	public void addSubject(Subject subject){
 		/*TODO: check if subject with code already exists */
 		Entity subjectEntity = new Entity(SUBJECT_KIND, subject.getCode());
@@ -83,8 +105,12 @@ public class SubjectDao {
 		datastore.put(subjectEntity);
 	}
 	
+	/**
+	 * Deletes specified subject, if it exists, identified by the subject code it was created with;
+	 * does nothing otherwise
+	 * @param subjectCode
+	 */
 	public void deleteSubject(String subjectCode){
-		/*TODO: check if subject with code exists */
 		datastore.delete(KeyFactory.createKey(SUBJECT_KIND, subjectCode));
 	}
 }

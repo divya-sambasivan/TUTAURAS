@@ -16,6 +16,11 @@ import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.ucsb.cs.rtsystems.model.Lecture;
 import com.ucsb.cs.rtsystems.model.LectureInstance;
 
+/**
+ * Provides datastore access to the "LECTURE" Kind
+ * @author divya_000
+ *
+ */
 public class LectureDao {
 	
 	private static DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();;
@@ -26,6 +31,12 @@ public class LectureDao {
 		subjectDao = new SubjectDao();
 	}
 	
+	/**
+	 * Retrieves all the lectures created by a given tutor
+	 * @param tutorId	user id of the tutor
+	 * @return 	a list of lectures created by the tutor specified
+	 * @throws EntityNotFoundException
+	 */
 	public ArrayList<Lecture> getLecturesByTutor(String tutorId) throws EntityNotFoundException{
 		ArrayList<Lecture> lectures = new ArrayList<Lecture>();
 		Lecture lecture;
@@ -53,6 +64,12 @@ public class LectureDao {
 		}
 		return lectures;
 	}
+	/**
+	 * Retrieves all lectures for a specified subject
+	 * @param subjectCode
+	 * @return	a list of lectures for the subject specified
+	 * @throws EntityNotFoundException
+	 */
 	
 	public ArrayList<Lecture> getAllLectures(String subjectCode) throws EntityNotFoundException{
 		ArrayList<Lecture> lectures = new ArrayList<Lecture>();
@@ -77,7 +94,13 @@ public class LectureDao {
 		return lectures;
 	}
 	
-	
+	/**
+	 * Gets the specified lecture
+	 * @param subjectCode
+	 * @param lectureId
+	 * @return
+	 * @throws EntityNotFoundException
+	 */
 	public Lecture getLecture(String subjectCode, long lectureId) throws EntityNotFoundException{
 		Lecture lecture = null;
 		
@@ -98,6 +121,10 @@ public class LectureDao {
 		return lecture;
 	}
 	
+	/**
+	 * Add a new lecture. Persists an object of type Lecture in Entity LECTURE
+	 * @param lecture
+	 */
 	public void addLecture(Lecture lecture){
 		Entity lectureEntity = new Entity(LECTURE_KIND, KeyFactory.createKey(SubjectDao.SUBJECT_KIND, lecture.getSubjectCode()));
 		lectureEntity.setProperty("startTimeHour", lecture.getStartTimeHour());
@@ -111,6 +138,11 @@ public class LectureDao {
 		datastore.put(lectureEntity);
 	}
 	
+	/**
+	 * Updates an Entity of type LECTURE, identified and updated with field from the corresponding Lecture object
+	 * @param lecture	the object to update along with the updated fields
+	 * @throws EntityNotFoundException
+	 */
 	public void updateLecture(Lecture lecture) throws EntityNotFoundException{
 		long lectureId = lecture.getID();
 		String subjectCode = lecture.getSubjectCode();
@@ -126,8 +158,12 @@ public class LectureDao {
 		datastore.put(lectureEntity);
 	}
 	
+	/**
+	 * Deletes Entity if it exists; does nothing otherwise
+	 * @param lectureId
+	 * @param subjectCode
+	 */
 	public void deleteLecture(long lectureId, String subjectCode){
-		/*TODO: check if lecture with code exists */
 		datastore.delete(KeyFactory.createKey(KeyFactory.createKey(subjectDao.SUBJECT_KIND, subjectCode),LECTURE_KIND, lectureId));
 	}
 	
