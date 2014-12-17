@@ -95,7 +95,7 @@
       							'</a>',
       							'<div class="media-body">',
        	 						'<h4 class="media-heading">Subject: __subject_code <button class="btn btn-xs btn-danger deleteInstance" subject=__subject_code lecture=__lecture_id lectureInstanceId=__lecture_instance_id>Delete</button></h4>',
-        						'<p>You have a lecture with __tutor_name on __lecture_date from __start_time_h:__start_time_m to __end_time_h:__end_time_m.</p>',
+        						'<p>You have a lecture with __tutor_name on __lecture_date from __start_time_h:__start_time_m to __end_time_h:__end_time_m. Contact your tutor at __email</p>',
     							'</div>',
 								'</div>'].join('\n');
 		var allLectures = "";
@@ -107,6 +107,7 @@
 			var lectureId = myLecture["lecture"]["ID"];
 			var lectureInstanceId = myLecture["lectureInstance"]["ID"];
 			var tutorName = myLecture["tutor"]["firstName"];
+			var tutorEmail = myLecture["tutor"]["email"];
 			var lectureDate = myLecture["lectureInstance"]["lectureDate"];
 			var startTimeHour = myLecture["lecture"]["startTimeHour"];
 			var startTimeMinute = myLecture["lecture"]["startTimeMinute"];
@@ -114,12 +115,12 @@
 			var endTimeMinute = myLecture["lecture"]["endTimeMinute"];
 			var myLectureHTML = LECTURE_TEMPLATE.replace("__profile_link",imageUrl).replace("__subject_code", subjectCode).replace("__tutor_name",tutorName).replace("__lecture_date", lectureDate);
 			myLectureHTML = myLectureHTML.replace("__start_time_h", formatDoubleDigit(startTimeHour)).replace("__start_time_m",formatDoubleDigit(startTimeMinute)).replace("__end_time_h",formatDoubleDigit(endTimeHour)).replace("__end_time_m", formatDoubleDigit(endTimeMinute));
-			myLectureHTML = myLectureHTML.replace("__subject_code", subjectCode).replace("__lecture_id", lectureId).replace("__lecture_instance_id", lectureInstanceId);
+			myLectureHTML = myLectureHTML.replace("__subject_code", subjectCode).replace("__lecture_id", lectureId).replace("__lecture_instance_id", lectureInstanceId).replace("__email", tutorEmail);
 			allLectures += myLectureHTML;
 		}
 		/* no lecture instances */
 		if(allLectures == ""){
-			allLectures = '<div class="jumbotron"><h3>You don\'t have any lectures scheduled yet. Wake up! Wake up!</h3><img src="images/student_no_instances.png" width="100%" height="70%"</div>';
+			allLectures = '<div class="jumbotron"><h3>"Dont be A Bronto-snorus... Wake up and find a lecture!"</h3><img src="images/student_no_instances.png" width="100%" height="70%"</div>';
 		}
 		return allLectures;
 	}

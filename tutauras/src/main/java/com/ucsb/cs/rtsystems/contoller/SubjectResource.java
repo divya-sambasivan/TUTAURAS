@@ -83,9 +83,8 @@ public class SubjectResource {
 		/* delete all child instances*/
 		try {
 			ArrayList<Lecture> childLectures = lectureDao.getAllLectures(subjectCode);
-			byte[] payload = {};
 			for(Lecture childLecture : childLectures){
-				TaskOptions to=TaskOptions.Builder.withUrl("/rest/lecture/"+subjectCode+"/"+childLecture.getID()).method(TaskOptions.Method.DELETE).payload(payload, "application/json");
+				TaskOptions to=TaskOptions.Builder.withUrl("/rest/lecture/"+subjectCode+"/"+childLecture.getID()).method(TaskOptions.Method.DELETE);
 				queue.add(to);
 			}
 		} catch (EntityNotFoundException e) {
