@@ -70,7 +70,6 @@ public class SubjectUploadProxy extends HttpServlet {
 	        		if(item.isFormField()) {
 	                    // Parse non-file field
 	                    String name = item.getFieldName();
-	                    /*TODO: fix this ?*/
 	                    ByteArrayOutputStream fileBytesStream = new ByteArrayOutputStream();
 	                    int len;
 	                    byte[] buffer = new byte[8192];
@@ -100,8 +99,7 @@ public class SubjectUploadProxy extends HttpServlet {
 	    		httpPost.setEntity(entity);
 	    		res = (HttpServletResponse) httpclient.execute(httpPost);
 	        } catch(Exception e) {
-	            //Logger.error(this, "Exception Parsing Form", e);
-	            //response.sendRedirect(errorPage);
+	        	System.out.println(e);
 	        	System.out.println("Exception Parsing Form");
 	            return;
 	        }

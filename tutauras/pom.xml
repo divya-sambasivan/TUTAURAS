@@ -35,16 +35,7 @@
             <artifactId>jstl</artifactId>
             <version>1.2</version>
         </dependency>
-        <dependency>
-		    <groupId>com.sun.jersey</groupId>
-		    <artifactId>jersey-json</artifactId>
-		    <version>1.18.1</version>
-		</dependency>
-		<dependency>
-		   <groupId>com.owlike</groupId>
-		   <artifactId>genson</artifactId>
-		   <version>0.99</version>
-		</dependency>
+        
         <dependency>
 		    <groupId>org.glassfish.jersey.containers</groupId>
 		    <!-- if your container implements Servlet API older than 3.0, use "jersey-container-servlet-core" -->
@@ -75,6 +66,17 @@
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 			<version>1.2</version>
+		</dependency>
+		
+		<!-- <dependency>
+		    <groupId>com.sun.jersey</groupId>
+		    <artifactId>jersey-json</artifactId>
+		    <version>1.18.1</version>
+		</dependency> -->
+		<dependency>
+		   <groupId>com.owlike</groupId>
+		   <artifactId>genson</artifactId>
+		   <version>0.99</version>
 		</dependency>
 		
 		

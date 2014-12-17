@@ -32,7 +32,7 @@
 
 <div class="student">
 	<nav class="navbar navbar-inverse">
-	    <ul class="nav nav-tabs">
+	    <ul class="nav navbar-nav">
 	        <li class="active"><a data-toggle="tabSwitchMyLectures" href="#myLectures" url="rest/search/lectureInstanceForTutor?tutorEmail=" data-target="#myLectures" id="myLecturesTab">Upcoming Appointments</a></li>
 	        <li><a data-toggle="tabSwitchNewLecture" href="#newLecture" data-target="#newLecture" id="newLectureTab">New Lecture</a></li>
 	        <li><a data-toggle="tabSwitchMyParentLectures" href="#myParentLectures" url="rest/search/lectureForTutor?tutorEmail=" data-target="#myParentLectures" id="parentLecturesTab">My Lectures</a></li>
@@ -211,10 +211,18 @@
 			myLectureHTML = myLectureHTML.replace("__subject_code", subjectCode).replace("__lecture_id", lectureId).replace("__lecture_instance_id", lectureInstanceId);
 			allLectures += myLectureHTML;
 		}
+		
+		if(allLectures == ""){
+			allLectures = '<div class="jumbotron"><h3>You don\'t have any appointments scheduled yet.</h3><img src="images/tutor_no_instances.jpg" width="25%" height="70%"</div>';
+		}
+		
 		return allLectures;
 	}
 	
 	function getSubjects(subjectsJSON){
+		if(subjectsJSON.length==0){
+			return '<label> No subjects yet. Please create a new one </label>';
+		}
 		var subjectsHTML = '<label for="subjectSelect">Subject:</label><select class="form-control" id="subjectSelect">';
 		var i=0;
 		for(i=0;i<subjectsJSON.length;i++){
@@ -312,11 +320,16 @@
 			myLectureHTML = myLectureHTML.replace("__subject_code", subjectCode).replace("__lecture_id", lectureId);
 			allLectures += myLectureHTML;
 		}
+		
+		if(allLectures == ""){
+			allLectures = '<div class="jumbotron"><h3>Hi there tutor, <br/> You haven\'t created any lectures yet. Your students are waiting for you. Go ahead and create one.</h3><img src="images/tutor_no_lectures.jpg" width="20%" height="70%"</div>';
+		}
+		
 		return allLectures;
 	}
 	
-	function populateSubjectList(){
-		var loadurl = "rest/subject";
+	function populateSubjectList(cached){
+		var loadurl = "rest/subject?cached="+cached;
 		var targ = $('#subjectSelectHolder');
 		$.get(loadurl, function(data) {
 	        $(targ).html(getSubjects(data));
@@ -325,7 +338,7 @@
 	
 	$('[data-toggle="tabSwitchNewLecture"]').click(function(e) {
 	    var $this = $(this);
-		populateSubjectList();
+		populateSubjectList(true);
 	    $this.tab('show');
 	    return false;
 	});
@@ -362,7 +375,7 @@
         	return;
         }
         
-        var createLectureUrl = "http://localhost:8080/rest/lecture/" + lectureData["subjectCode"];
+        var createLectureUrl = "rest/lecture/" + lectureData["subjectCode"];
         $.ajax({
 			  url: createLectureUrl,
 			  type: "POST",
@@ -406,10 +419,14 @@
 		});
 	});
 	
+	$('#btnShowNewSubject').on('click', function (e) {
+		$('#showNewSubjectModal').modal('show');
+	});
+	
 	$(function() {
 		//twitter bootstrap script
 			$("button#bntNewSubject").click(function(){
-					var formData = new FormData($('form.contact')[0]);
+					/*var formData = new FormData($('form.contact')[0]);
 				   	$.ajax({
 		    		   	type: "POST",
 						url: "subjectUploadProxy",
@@ -419,7 +436,7 @@
 						data: formData,
 						success: function(){
 							  bootbox.alert("The subject has been added");
-							  populateSubjectList();
+							  populateSubjectList(false);
 						  },
 						  error: function(){
 							  alert("Uh oh! Something's gone wrong...");
@@ -427,13 +444,43 @@
 						  complete: function(){
 							  $('#showNewSubjectModal').modal('hide');
 							  
-							  /*reset values*/
+							  //reset values
 							  $('#subjectCode')[0].value = "";
 							  $('#subjectName')[0].value = "";
 							  $('#subjectDescription')[0].value = "";
+							  $('#subjectImageChooser')[0].value = null;
 						  }
-				});
+				});*/
+				
+				var subject = {};
+				subject["code"] = $('#subjectCode')[0].value;
+				subject["name"] = $('#subjectName')[0].value;
+				subject["description"] = $('#subjectDescription')[0].value;
+				
+				var createSubjectUrl = "rest/subject";
+				$.ajax({
+					  url: createSubjectUrl,
+					  type: "POST",
+					  data: JSON.stringify(subject),
+					  contentType: "application/json; charset=utf-8",
+					  dataType: "json",
+					  success: function(){
+						  bootbox.alert("The subject has been added");
+						  populateSubjectList();
+					  },
+					  error: function(){
+						  alert("Uh oh! Something's gone wrong...");
+					  },
+					  complete: function(){
+						  $('#showNewSubjectModal').modal('hide');
+						  
+						  /*reset values*/
+						  $('#subjectCode')[0].value = "";
+						  $('#subjectName')[0].value = "";
+						  $('#subjectDescription')[0].value = "";
+					  }
 			});
+		});
 	});
 		
 </script>

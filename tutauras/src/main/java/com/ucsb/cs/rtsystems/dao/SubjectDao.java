@@ -37,14 +37,14 @@ public class SubjectDao {
 	 * Get all subjects in the SUBJECT kind. Caches results for 5 minutes.
 	 * @return a list of all subjects
 	 */
-	public ArrayList<Subject> getAllSubjects(){
+	public ArrayList<Subject> getAllSubjects(boolean cached){
 		Query q = new Query(SUBJECT_KIND);
 		PreparedQuery pq = datastore.prepare(q);
 		ArrayList<Subject> subjects;
 		String CACHE_KEY = "ALL_SUBJECTS";
 		subjects =  (ArrayList<Subject>) syncCache.get(CACHE_KEY);
-		
-		if(subjects == null){
+		System.out.println(cached);
+		if(subjects == null || cached==false){
 			subjects = new ArrayList<Subject>();
 			for (Entity subjectEntity : pq.asIterable()) {
 				Subject subject = new Subject();

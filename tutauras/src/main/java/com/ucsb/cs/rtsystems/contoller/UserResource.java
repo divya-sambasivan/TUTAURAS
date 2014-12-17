@@ -35,8 +35,12 @@ private UserDao userDao;
 			@QueryParam("email") String email) throws WebApplicationException{
 		try{
 			User user = userDao.getUserByEmail(email);
+			if(user==null){
+				throw new WebApplicationException(404);
+			}
 			return user;
 		}catch(EntityNotFoundException e){
+			System.out.println("user not found");
 			throw new WebApplicationException(404);
 		}
 	}
