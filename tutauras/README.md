@@ -36,3 +36,11 @@ Testing
 =============================
 The Rest Assured (https://code.google.com/p/rest-assured/) library is used to test the rest based interfaces.
 
+Libraries Used
+=============================
+Bootstrap (http://getbootstrap.com/)
+hello.js (http://adodson.com/hello.js/)- Leverage google for authentication
+bootbox.js (http://bootboxjs.com/) - Twitter Bootstrap overlays for alerts
+fullcalendar.js (http://fullcalendar.io/)
+
+
