@@ -120,7 +120,8 @@ public class UserDao {
 	 * Deletes user specified by {@ID} if found; does nothing otherwise.
 	 * @param ID
 	 */
-	public void deleteUser(long ID){
+	public void deleteUser(String ID){
+		System.out.println(ID);
 		datastore.delete(KeyFactory.createKey(USER_KIND, ID));
 	}
 

@@ -82,7 +82,7 @@ private UserDao userDao;
 	
 	@DELETE
 	@Path("{user_code}")
-	public void deleteUser(@PathParam("user_code") long userCode){
+	public void deleteUser(@PathParam("user_code") String userCode){
 		userDao.deleteUser(userCode);
 	}
 	

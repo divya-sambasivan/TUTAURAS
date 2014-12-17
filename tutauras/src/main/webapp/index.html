@@ -27,6 +27,7 @@
 			  </div>
 	          <!--/.nav-collapse -->
 	        </div><!--/.container-fluid -->
+	        <!--<button class="btn btn-default btn-lg pull-right id="logout">logout</button>-->
       	</nav>
 		
 		<div class="choice">
@@ -57,7 +58,9 @@
 		  </div>
 		</div>
 		<script>
-				
+				$('#logout').click(function(){
+					hello.logout();
+				});
 				// call user information, for the given network
 				hello.init({
 					google   : '609282586889-e1j3bf9p3s3a45uotqel24q43vdero9s.apps.googleusercontent.com'
